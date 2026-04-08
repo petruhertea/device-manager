@@ -17,6 +17,12 @@
     </ItemGroup>
 
     <ItemGroup>
+        <None Update="scripts\**\*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\DeviceManager.Core\DeviceManager.Core.csproj" />
       <ProjectReference Include="..\DeviceManager.Infrastructure\DeviceManager.Infrastructure.csproj" />
     </ItemGroup>

@@ -1,0 +1,18 @@
+﻿@DeviceManager_HostAddress = http://localhost:5258
+### Update device
+PUT {{DeviceManager_HostAddress}}/api/v1/devices/6
+Content-Type: application/json
+
+{
+  "name": "Galaxy A56",
+  "manufacturer": "Samsung",
+  "type": "phone",
+  "operatingSystem": "Android",
+  "osVersion": "16.0",
+  "processor": "Exynos 1580",
+  "ramAmount": 8,
+  "description": "Update current description",
+  "assignedUserName": null
+}
+
+###

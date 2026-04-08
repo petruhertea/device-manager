@@ -1,6 +1,7 @@
 using DeviceManager.Core.Interfaces;
 using DeviceManager.Infrastructure.Data;
 using DeviceManager.Infrastructure.Repositories;
+using DeviceManager.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
@@ -10,8 +11,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions => sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(10),
+            errorNumbersToAdd: null
+        )
+    ));
+
 // Register repositories
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
+// Register services
+builder.Services.AddScoped<IDeviceService, DeviceService>();
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();  // built-in, no extra package needed
@@ -22,6 +35,14 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();  // exposes the spec at /openapi/v1.json
     app.MapScalarApiReference();  // UI at /scalar/v1
+}
+
+// Seed the database on startup
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    await DatabaseSeeder.SeedAsync(db, logger);
 }
 
 app.UseHttpsRedirection();

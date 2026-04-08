@@ -1,0 +1,18 @@
+﻿@DeviceManager_HostAddress = http://localhost:5258
+### Create device
+POST {{DeviceManager_HostAddress}}/api/v1/devices
+Content-Type: application/json
+
+{
+  "name": "Galaxy A56",
+  "manufacturer": "Samsung",
+  "type": "phone",
+  "operatingSystem": "Android",
+  "osVersion": "16.0",
+  "processor": "Exynos 1580",
+  "ramAmount": 8,
+  "description": "My personal phone. TO DO: Change later to a better description",
+  "assignedUserName": null
+}
+
+###

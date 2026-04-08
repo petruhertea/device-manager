@@ -1,0 +1,6 @@
+﻿@DeviceManager_HostAddress = http://localhost:5258
+### Delete device
+DELETE {{DeviceManager_HostAddress}}/api/v1/devices/6
+Accept: application/json
+
+###
