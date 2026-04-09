@@ -16,7 +16,7 @@ public class DevicesController(IDeviceService service) : ControllerBase
     
     [HttpGet("{id:int}")]
     [EndpointSummary("Retrieve device.")]
-    [EndpointDescription("Returns a single device.")]
+    [EndpointDescription("Returns a single device by id.")]
     public async Task<ActionResult<DeviceDto>> GetById(int id)
     {
         var device = await service.GetByIdAsync(id);
