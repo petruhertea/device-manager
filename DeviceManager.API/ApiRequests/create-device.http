@@ -4,12 +4,12 @@ POST {{DeviceManager_HostAddress}}/api/v1/devices
 Content-Type: application/json
 
 {
-  "name": "Galaxy A56",
+  "name": "Galaxy A54",
   "manufacturer": "Samsung",
   "type": "phone",
   "operatingSystem": "Android",
   "osVersion": "16.0",
-  "processor": "Exynos 1580",
+  "processor": "Exynos 1380",
   "ramAmount": 8,
   "description": "My personal phone. TO DO: Change later to a better description",
   "assignedUserName": null
