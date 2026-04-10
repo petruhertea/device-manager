@@ -1,4 +1,4 @@
-﻿@DeviceManager_HostAddress = http://localhost:5258
+﻿@DeviceManager_HostAddress = http://localhost:8080
 ### Update device
 PUT {{DeviceManager_HostAddress}}/api/v1/devices/6
 Content-Type: application/json

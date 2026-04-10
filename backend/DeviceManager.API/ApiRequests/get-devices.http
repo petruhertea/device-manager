@@ -1,4 +1,4 @@
-@DeviceManager_HostAddress = http://localhost:5258
+@DeviceManager_HostAddress = http://localhost:8080
 ### Get devices
 # For getting a specific device (by its Id) please insert the id at the end of the endpoint, such as /api/v1/devices/1
 GET {{DeviceManager_HostAddress}}/api/v1/devices/

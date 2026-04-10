@@ -1,0 +1,27 @@
+﻿services:
+  devicemanager.api:
+    image: devicemanager.api
+    build:
+      context: .
+      dockerfile: DeviceManager.API/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=DeviceManagerDb;User Id=sa;Password=hQ2mtfk1@;TrustServerCertificate=True;
+    depends_on:
+      - sqlserver
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: device-manager-db
+    environment:
+      SA_PASSWORD: "hQ2mtfk1@"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - device-manager-db-data:/var/lib/mssqlserver/data
+    
+volumes:
+  device-manager-db-data:
+    external: true

@@ -1,4 +1,4 @@
-﻿@DeviceManager_HostAddress = http://localhost:5258
+﻿@DeviceManager_HostAddress = http://localhost:8080
 ### Create device
 POST {{DeviceManager_HostAddress}}/api/v1/devices
 Content-Type: application/json
