@@ -31,6 +31,16 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();  // built-in, no extra package needed
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngular", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 
@@ -50,6 +60,7 @@ if (!app.Environment.IsEnvironment("Testing"))
     await DatabaseSeeder.SeedAsync(db, logger);
 }
 
+app.UseCors("AllowAngular");
 app.UseHttpsRedirection();
 app.MapControllers();
 app.Run();
