@@ -1,47 +1,82 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using DeviceManager.Core.Models;
+using DeviceManager.Infrastructure.Data;
 
 namespace DeviceManager.Infrastructure.Data;
 
 public static class DatabaseSeeder
 {
-    public static async Task SeedAsync(AppDbContext context, ILogger logger)
+    public static async Task SeedAsync(
+        AppDbContext context,
+        UserManager<ApplicationUser> userManager,
+        ILogger logger)
     {
         await context.Database.MigrateAsync();
 
-        if (await context.Users.AnyAsync() || await context.Devices.AnyAsync())
+        if (await context.Users.AnyAsync())
         {
             logger.LogInformation("Database already seeded, skipping.");
             return;
         }
 
-        var scriptPath = Path.Combine(AppContext.BaseDirectory, "scripts", "02_seed_data.sql");
-        logger.LogInformation("Looking for seed script at: {Path}", scriptPath);
+        logger.LogInformation("Seeding database...");
 
-        if (!File.Exists(scriptPath))
+        // Create seed users through Identity so passwords are hashed
+        var seedUsers = new[]
         {
-            logger.LogWarning("Seed script not found at: {Path}", scriptPath);
-            return;
-        }
+            new ApplicationUser
+            {
+                FullName = "Alice Johnson", Email = "alice@company.com",
+                UserName = "alice@company.com", Role = "Admin", Location = "London"
+            },
+            new ApplicationUser
+            {
+                FullName = "Bob Smith", Email = "bob@company.com",
+                UserName = "bob@company.com", Role = "Employee", Location = "Berlin"
+            },
+            new ApplicationUser
+            {
+                FullName = "Carol White", Email = "carol@company.com",
+                UserName = "carol@company.com", Role = "Employee", Location = "Paris"
+            }
+        };
 
-        logger.LogInformation("Seed script found, running...");
+        foreach (var user in seedUsers)
+            await userManager.CreateAsync(user, "Password1!");
 
-        var sql = await File.ReadAllTextAsync(scriptPath);
-        var batches = sql.Split(["\nGO", "\r\nGO"], StringSplitOptions.RemoveEmptyEntries);
+        var alice = await userManager.FindByEmailAsync("alice@company.com");
+        var bob   = await userManager.FindByEmailAsync("bob@company.com");
+        var carol = await userManager.FindByEmailAsync("carol@company.com");
 
-        await using var connection = (SqlConnection)context.Database.GetDbConnection();
-        await connection.OpenAsync();
+        context.Devices.AddRange(
+            new Device { Name = "iPhone 15 Pro",  Manufacturer = "Apple",
+                         Type = "phone",  OperatingSystem = "iOS",
+                         OsVersion = "17.4", Processor = "A17 Pro",
+                         RamAmount = 8,  Description = "Apple flagship phone",
+                         AssignedUserId = alice!.Id },
+            new Device { Name = "Galaxy S24",     Manufacturer = "Samsung",
+                         Type = "phone",  OperatingSystem = "Android",
+                         OsVersion = "14.0", Processor = "Snapdragon 8 Gen 3",
+                         RamAmount = 12, Description = "Samsung flagship phone",
+                         AssignedUserId = bob!.Id },
+            new Device { Name = "iPad Pro 12.9",  Manufacturer = "Apple",
+                         Type = "tablet", OperatingSystem = "iPadOS",
+                         OsVersion = "17.4", Processor = "M2",
+                         RamAmount = 16, Description = "Apple pro tablet" },
+            new Device { Name = "Pixel 8",        Manufacturer = "Google",
+                         Type = "phone",  OperatingSystem = "Android",
+                         OsVersion = "14.0", Processor = "Tensor G3",
+                         RamAmount = 8,  Description = "Google flagship phone",
+                         AssignedUserId = carol!.Id },
+            new Device { Name = "Galaxy Tab S9",  Manufacturer = "Samsung",
+                         Type = "tablet", OperatingSystem = "Android",
+                         OsVersion = "14.0", Processor = "Snapdragon 8 Gen 2",
+                         RamAmount = 12, Description = "Samsung pro tablet" }
+        );
 
-        foreach (var batch in batches)
-        {
-            var trimmed = batch.Trim();
-            if (string.IsNullOrWhiteSpace(trimmed)) continue;
-
-            await using var command = new SqlCommand(trimmed, connection);
-            await command.ExecuteNonQueryAsync();
-        }
-
+        await context.SaveChangesAsync();
         logger.LogInformation("Database seeded successfully.");
     }
 }

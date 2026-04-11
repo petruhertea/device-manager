@@ -70,6 +70,6 @@ public class DeviceService(IDeviceRepository repository) : IDeviceService
         Processor = d.Processor,
         RamAmount = d.RamAmount,
         Description = d.Description,
-        AssignedUserName = d.AssignedUser?.Name
+        AssignedUserName = d.AssignedUser?.FullName
     };
 }

@@ -1,11 +1,13 @@
 ﻿using DeviceManager.Core.DTOs;
 using DeviceManager.Core.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DeviceManager.Controllers;
 
 [ApiController]
 [Route("api/v1/devices")]
+[Authorize]
 public class DevicesController(IDeviceService service) : ControllerBase
 {
     [HttpGet]

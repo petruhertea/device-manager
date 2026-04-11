@@ -14,5 +14,5 @@ public class Device
 
     // Foreign key — nullable because a device may be unassigned
     public int? AssignedUserId { get; set; }
-    public User? AssignedUser { get; set; }
+    public ApplicationUser? AssignedUser { get; set; }
 }

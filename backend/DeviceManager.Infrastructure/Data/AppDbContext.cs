@@ -1,16 +1,19 @@
 ﻿using DeviceManager.Core.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace DeviceManager.Infrastructure.Data;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+public class AppDbContext(DbContextOptions<AppDbContext> options)
+    : IdentityDbContext<ApplicationUser, IdentityRole<int>, int>(options)
 {
     public DbSet<Device> Devices => Set<Device>();
-    public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Device config
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<Device>(entity =>
         {
             entity.HasKey(d => d.Id);
@@ -22,20 +25,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(d => d.Processor).IsRequired().HasMaxLength(100);
             entity.Property(d => d.Description).HasMaxLength(500);
 
-            // A device can optionally be assigned to a user
             entity.HasOne(d => d.AssignedUser)
                 .WithMany(u => u.AssignedDevices)
                 .HasForeignKey(d => d.AssignedUserId)
                 .OnDelete(DeleteBehavior.SetNull);
         });
 
-        // User config
-        modelBuilder.Entity<User>(entity =>
+        modelBuilder.Entity<ApplicationUser>(entity =>
         {
-            entity.HasKey(u => u.Id);
-            entity.Property(u => u.Name).IsRequired().HasMaxLength(100);
-            entity.Property(u => u.Role).IsRequired().HasMaxLength(50);
-            entity.Property(u => u.Location).IsRequired().HasMaxLength(100);
+            entity.Property(u => u.FullName).HasMaxLength(100);
+            entity.Property(u => u.Role).HasMaxLength(50);
+            entity.Property(u => u.Location).HasMaxLength(100);
         });
     }
 }

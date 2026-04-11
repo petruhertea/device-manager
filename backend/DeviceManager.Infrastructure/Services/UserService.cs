@@ -18,12 +18,12 @@ public class UserService(IUserRepository repository) : IUserService
         return user is null ? null : ToDto(user);
     }
 
-    private static UserDto ToDto(User u) => new()
+    private static UserDto ToDto(ApplicationUser u) => new()
     {
-        Id       = u.Id,
-        Name     = u.Name,
-        Role     = u.Role,
-        Location = u.Location,
+        Id                  = u.Id,
+        Name                = u.FullName,
+        Role                = u.Role,
+        Location            = u.Location,
         AssignedDeviceNames = u.AssignedDevices.Select(d => d.Name)
     };
 }

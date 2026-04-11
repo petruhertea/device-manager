@@ -1,9 +1,9 @@
-﻿using DeviceManager.Core.Models;
+using DeviceManager.Core.Models;
 
 namespace DeviceManager.Core.Interfaces;
 
 public interface IUserRepository
 {
-    Task<IEnumerable<User>> GetAllAsync();
-    Task<User?> GetByIdAsync(int id);
+    Task<IEnumerable<ApplicationUser>> GetAllAsync();
+    Task<ApplicationUser?> GetByIdAsync(int id);
 }
