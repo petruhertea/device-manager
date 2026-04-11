@@ -2,24 +2,37 @@ using DeviceManager.Core.Interfaces;
 using DeviceManager.Infrastructure.Data;
 using DeviceManager.Infrastructure.Repositories;
 using DeviceManager.Infrastructure.Services;
+using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Register DbContext with SQL Server
+// Load .env in development so local runs work without Docker.
+// In Docker, these variables are already injected by docker-compose — this is skipped.
+// In tests, the Testing environment skips DB registration entirely.
+if (builder.Environment.IsDevelopment())
+{
+    Env.TraversePath().Load();
+}
+
+// DbContext — skipped in tests, which register their own in-memory version
 if (!builder.Environment.IsEnvironment("Testing"))
 {
+    var connectionString =
+        Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING")
+        ?? builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? throw new InvalidOperationException(
+            "DATABASE_CONNECTION_STRING is not set. " +
+            "Add it to your .env file (local) or docker-compose.yml (Docker).");
+
     builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseSqlServer(
-            builder.Configuration.GetConnectionString("DefaultConnection"),
-            sqlOptions => sqlOptions.EnableRetryOnFailure(
-                maxRetryCount: 5,
-                maxRetryDelay: TimeSpan.FromSeconds(10),
-                errorNumbersToAdd: null
-            )
-        ));
+        options.UseSqlServer(connectionString,
+            sql => sql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null)));
 }
+
+
+
 
 // Register repositories
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();

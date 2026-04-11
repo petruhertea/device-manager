@@ -1,1 +1,104 @@
 /* You can add global styles to this file, and also import other style files */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f1f5f9;
+  color: #1e293b;
+  line-height: 1.6;
+}
+
+// Buttons
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  transition: opacity 0.15s;
+
+  &:hover { opacity: 0.85; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  &.btn-primary   { background: #3b82f6; color: #fff; }
+  &.btn-secondary { background: #e2e8f0; color: #1e293b; }
+  &.btn-danger    { background: #ef4444; color: #fff; }
+  &.btn-sm        { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
+}
+
+// Cards
+.card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  padding: 1.5rem;
+}
+
+// Page header
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+
+  h1 { font-size: 1.5rem; font-weight: 600; }
+}
+
+// Form styles
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+
+  label { font-size: 0.875rem; font-weight: 500; color: #475569; }
+
+  input, select, textarea {
+    padding: 0.55rem 0.85rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: border-color 0.15s;
+    width: 100%;
+
+    &:focus { outline: none; border-color: #3b82f6; }
+    &.invalid { border-color: #ef4444; }
+  }
+
+  .error-msg { font-size: 0.8rem; color: #ef4444; }
+}
+
+// Status badge
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 500;
+
+  &.badge-assigned   { background: #dcfce7; color: #166534; }
+  &.badge-unassigned { background: #f1f5f9; color: #64748b; }
+}
+
+// Feedback states
+.state-message {
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.error-banner {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}

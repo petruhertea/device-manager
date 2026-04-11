@@ -1,0 +1,52 @@
+@if (loading()) {
+  <p class="state-message">Loading...</p>
+} @else if (error()) {
+  <div class="error-banner">{{ error() }}</div>
+} @else if (device()) {
+  <div class="page-header">
+    <h1>{{ device()!.name }}</h1>
+    <div style="display: flex; gap: 0.75rem;">
+      <a routerLink="/devices" class="btn btn-secondary">← Back</a>
+      <a [routerLink]="['/devices', device()!.id, 'edit']" class="btn btn-primary">Edit</a>
+    </div>
+  </div>
+
+  <div class="card">
+    @if (device()!.assignedUserName) {
+      <span class="badge badge-assigned" style="margin-bottom: 1.25rem; display: inline-block;">
+        Assigned to {{ device()!.assignedUserName }}
+      </span>
+    } @else {
+      <span class="badge badge-unassigned" style="margin-bottom: 1.25rem; display: inline-block;">
+        Unassigned
+      </span>
+    }
+
+    <div class="detail-grid">
+      <div class="detail-item">
+        <span class="detail-label">Manufacturer</span>
+        <span class="detail-value">{{ device()!.manufacturer }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Type</span>
+        <span class="detail-value">{{ device()!.type }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Operating System</span>
+        <span class="detail-value">{{ device()!.operatingSystem }} {{ device()!.osVersion }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Processor</span>
+        <span class="detail-value">{{ device()!.processor }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">RAM</span>
+        <span class="detail-value">{{ device()!.ramAmount }} GB</span>
+      </div>
+      <div class="detail-item" style="grid-column: 1 / -1;">
+        <span class="detail-label">Description</span>
+        <span class="detail-value">{{ device()!.description || '—' }}</span>
+      </div>
+    </div>
+  </div>
+}

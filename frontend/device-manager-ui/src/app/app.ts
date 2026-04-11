@@ -1,10 +1,13 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {DeviceService} from './core/services/device-service';
+import {RouterLink, RouterOutlet} from '@angular/router';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  template: `<p>Check the console</p>`
+  imports: [RouterOutlet, RouterLink],
+  templateUrl: 'app.html',
+  styleUrl: 'app.scss'
 })
 export class App implements OnInit {
   private deviceService: DeviceService = inject(DeviceService);

@@ -1,0 +1,58 @@
+<div class="page-header">
+  <h1>Devices</h1>
+</div>
+
+@if (error()) {
+  <div class="error-banner">{{ error() }}</div>
+}
+
+@if (loading()) {
+  <p class="state-message">Loading devices...</p>
+} @else if (devices().length === 0) {
+  <p class="state-message">No devices found. Add one to get started.</p>
+} @else {
+  <div class="card" style="padding: 0; overflow: hidden;">
+    <table class="device-table">
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th>Manufacturer</th>
+        <th>Type</th>
+        <th>OS</th>
+        <th>RAM</th>
+        <th>Assigned To</th>
+        <th></th>
+      </tr>
+      </thead>
+      <tbody>
+        @for (device of devices(); track device.id) {
+          <tr (click)="goToDetail(device.id)" class="device-row">
+            <td class="device-name">{{ device.name }}</td>
+            <td>{{ device.manufacturer }}</td>
+            <td>{{ device.type }}</td>
+            <td>{{ device.operatingSystem }} {{ device.osVersion }}</td>
+            <td>{{ device.ramAmount }} GB</td>
+            <td>
+              @if (device.assignedUserName) {
+                <span class="badge badge-assigned">{{ device.assignedUserName }}</span>
+              } @else {
+                <span class="badge badge-unassigned">Unassigned</span>
+              }
+            </td>
+            <td class="actions-cell">
+              <a [routerLink]="['/devices', device.id, 'edit']"
+                 (click)="$event.stopPropagation()"
+                 class="btn btn-secondary btn-sm">Edit</a>
+              <button
+                class="btn btn-danger btn-sm"
+                [disabled]="deletingId() === device.id"
+                (click)="deleteDevice($event, device.id)">
+                {{ deletingId() === device.id ? '...' : 'Delete' }}
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

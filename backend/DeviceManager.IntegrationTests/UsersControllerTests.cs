@@ -5,7 +5,8 @@ using FluentAssertions;
 
 namespace DeviceManager.IntegrationTests;
 
-public class UsersControllerTests : IClassFixture<DeviceManagerWebAppFactory>, IAsyncLifetime
+[Collection("UsersCollection")]
+public class UsersControllerTests : IAsyncLifetime
 {
     private readonly HttpClient _client;
     private readonly DeviceManagerWebAppFactory _factory;

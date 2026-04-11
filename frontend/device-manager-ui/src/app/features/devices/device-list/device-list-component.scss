@@ -1,0 +1,37 @@
+.device-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    text-align: left;
+    padding: 0.85rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  td {
+    padding: 0.9rem 1rem;
+    font-size: 0.92rem;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+  }
+
+  .device-row {
+    cursor: pointer;
+    transition: background 0.1s;
+    &:hover { background: #f8fafc; }
+    &:last-child td { border-bottom: none; }
+  }
+
+  .device-name { font-weight: 500; }
+
+  .actions-cell {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+}

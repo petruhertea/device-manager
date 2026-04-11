@@ -22,4 +22,5 @@ RUN dotnet publish "./DeviceManager.API.csproj" -c $BUILD_CONFIGURATION -o /app/
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY .env ./
 ENTRYPOINT ["dotnet", "DeviceManager.API.dll"]

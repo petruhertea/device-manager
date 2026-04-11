@@ -27,16 +27,25 @@ public class DeviceManagerWebAppFactory : WebApplicationFactory<Program>
         });
     }
 
+    private readonly Lock _lock = new();
+
     public void ResetDatabase()
     {
-        using var scope = Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        lock (_lock)
+        {
+            using var scope = Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        db.Devices.RemoveRange(db.Devices);
-        db.Users.RemoveRange(db.Users);
-        db.SaveChanges();
+            db.Devices.RemoveRange(db.Devices);
+            db.Users.RemoveRange(db.Users);
+            db.SaveChanges();
 
-        SeedTestData(db);
+            // Clear the change tracker so EF doesn't think
+            // the just-deleted entities are still being tracked
+            db.ChangeTracker.Clear();
+
+            SeedTestData(db);
+        }
     }
 
     private static void SeedTestData(AppDbContext db)

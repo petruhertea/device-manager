@@ -1,0 +1,14 @@
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}

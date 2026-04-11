@@ -5,7 +5,8 @@ using FluentAssertions;
 
 namespace DeviceManager.IntegrationTests;
 
-public class DevicesControllerTests : IClassFixture<DeviceManagerWebAppFactory>, IAsyncLifetime
+[Collection("DevicesCollection")]
+public class DevicesControllerTests : IAsyncLifetime
 {
     private readonly HttpClient _client;
     private readonly DeviceManagerWebAppFactory _factory;
@@ -109,6 +110,61 @@ public class DevicesControllerTests : IClassFixture<DeviceManagerWebAppFactory>,
             "application/json");
 
         var response = await _client.PostAsync(DeviceEndpoint, content);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+    
+    [Fact]
+    public async Task Create_InvalidOsVersion_ReturnsBadRequest_WithValidationError()
+    {
+        var newDevice = new CreateDeviceDto
+        {
+            Name            = "Test Phone",
+            Manufacturer    = "Test",
+            Type            = "phone",
+            OperatingSystem = "Android",
+            OsVersion       = "16",       // missing the .0 — should fail
+            Processor       = "Snapdragon",
+            RamAmount       = 8,
+            Description     = "Test"
+        };
+
+        var response = await _client.PostAsJsonAsync(DeviceEndpoint, newDevice);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        var body = await response.Content.ReadFromJsonAsync<ValidationErrorResponse>();
+        body!.Errors.Should().ContainKey("OsVersion");
+    }
+
+    [Fact]
+    public async Task Create_InvalidType_ReturnsBadRequest_WithValidationError()
+    {
+        var newDevice = new CreateDeviceDto
+        {
+            Name            = "Test",
+            Manufacturer    = "Test",
+            Type            = "laptop",   // not phone or tablet
+            OperatingSystem = "Windows",
+            OsVersion       = "11.0",
+            Processor       = "Intel",
+            RamAmount       = 16,
+            Description     = "Test"
+        };
+
+        var response = await _client.PostAsJsonAsync(DeviceEndpoint, newDevice);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        var body = await response.Content.ReadFromJsonAsync<ValidationErrorResponse>();
+        body!.Errors.Should().ContainKey("Type");
+    }
+
+    [Fact]
+    public async Task Create_MissingRequiredFields_ReturnsBadRequest()
+    {
+        // Completely empty body
+        var response = await _client.PostAsJsonAsync(DeviceEndpoint, new { });
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
