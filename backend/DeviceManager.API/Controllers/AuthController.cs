@@ -1,6 +1,7 @@
-using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using DeviceManager.Core.DTOs;
 using DeviceManager.Core.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DeviceManager.Controllers;
@@ -55,20 +56,21 @@ public class AuthController(IAuthService authService) : ControllerBase
     }
 
     [HttpGet("me")]
-    [Microsoft.AspNetCore.Authorization.Authorize]
+    [Authorize]
     public ActionResult<AuthUserDto> Me()
     {
-        var id       = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-        var email    = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
-        var fullName = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
+        var id       = User.FindFirst("sub")?.Value;
+        var email    = User.FindFirst("email")?.Value;
+        var fullName = User.FindFirst(ClaimTypes.Name)?.Value;
         var role     = User.FindFirst("role")?.Value;
 
         return Ok(new AuthUserDto
         {
-            Id       = int.Parse(id ?? "0"),
-            Email    = email ?? "",
-            FullName = fullName ?? "",
-            Role     = role ?? ""
+            Id       = int.TryParse(id, out var parsedId) ? parsedId : 0,
+            Email    = email    ?? string.Empty,
+            FullName = fullName ?? string.Empty,
+            Role     = role     ?? string.Empty,
+            Location = string.Empty
         });
     }
 }

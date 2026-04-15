@@ -14,6 +14,8 @@ public class AuthService(
     UserManager<ApplicationUser> userManager,
     IConfiguration configuration) : IAuthService
 {
+    private readonly IConfiguration _configuration = configuration;
+
     public async Task<AuthUserDto> RegisterAsync(RegisterDto dto)
     {
         var existingUser = await userManager.FindByEmailAsync(dto.Email);
@@ -23,9 +25,9 @@ public class AuthService(
         var user = new ApplicationUser
         {
             FullName = dto.FullName,
-            Email    = dto.Email,
-            UserName = dto.Email,      // Identity requires UserName
-            Role     = "Employee",     // default role on registration
+            Email = dto.Email,
+            UserName = dto.Email, // Identity requires UserName
+            Role = "Employee", // default role on registration
             Location = dto.Location
         };
 
@@ -43,7 +45,7 @@ public class AuthService(
     public async Task<(AuthUserDto user, string token)> LoginAsync(LoginDto dto)
     {
         var user = await userManager.FindByEmailAsync(dto.Email)
-            ?? throw new UnauthorizedAccessException("Invalid email or password.");
+                   ?? throw new UnauthorizedAccessException("Invalid email or password.");
 
         var passwordValid = await userManager.CheckPasswordAsync(user, dto.Password);
         if (!passwordValid)
@@ -55,27 +57,29 @@ public class AuthService(
 
     private string GenerateJwt(ApplicationUser user)
     {
-        var jwtSettings = configuration.GetSection("JwtSettings");
-        var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(jwtSettings["Key"]!));
+        var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY")
+                     ?? _configuration["JwtSettings:Key"]
+                     ?? throw new InvalidOperationException("JWT_KEY is not configured.");
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+        var jwtSettings = _configuration.GetSection("JwtSettings");
 
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-            new Claim(ClaimTypes.Name, user.FullName),
+            new Claim("sub", user.Id.ToString()),
+            new Claim("email", user.Email!),
+            new Claim("name", user.FullName),
             new Claim("role", user.Role),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new Claim("jti", Guid.NewGuid().ToString())
         };
 
         var token = new JwtSecurityToken(
-            issuer:   jwtSettings["Issuer"],
+            issuer: jwtSettings["Issuer"],
             audience: jwtSettings["Audience"],
-            claims:   claims,
-            expires:  DateTime.UtcNow.AddMinutes(
-                          double.Parse(jwtSettings["ExpiryMinutes"]!)),
-            signingCredentials: new SigningCredentials(
-                          key, SecurityAlgorithms.HmacSha256)
+            claims: claims,
+            expires: DateTime.UtcNow.AddMinutes(
+                double.Parse(jwtSettings["ExpiryMinutes"] ?? "60")),
+            signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
@@ -83,10 +87,10 @@ public class AuthService(
 
     private static AuthUserDto ToDto(ApplicationUser u) => new()
     {
-        Id       = u.Id,
+        Id = u.Id,
         FullName = u.FullName,
-        Email    = u.Email!,
-        Role     = u.Role,
+        Email = u.Email!,
+        Role = u.Role,
         Location = u.Location
     };
 }

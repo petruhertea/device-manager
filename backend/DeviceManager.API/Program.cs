@@ -63,6 +63,10 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+    // Disable automatic claim type mapping so claim names stay as issued
+    // Without this, 'sub' becomes ClaimTypes.NameIdentifier, 'role' becomes ClaimTypes.Role etc.
+    options.MapInboundClaims = false;
+
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer           = true,
