@@ -1,21 +1,19 @@
-import {Component, inject, OnInit} from '@angular/core';
-import {DeviceService} from './core/services/device-service';
-import {RouterLink, RouterOutlet} from '@angular/router';
+import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
+import { RouterLink, RouterOutlet } from '@angular/router';
+import { AuthService } from './core/services/auth-service';
 
 @Component({
   selector: 'app-root',
-  standalone: true,
   imports: [RouterOutlet, RouterLink],
   templateUrl: 'app.html',
-  styleUrl: 'app.scss'
+  styleUrl: 'app.scss',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class App implements OnInit {
-  private deviceService: DeviceService = inject(DeviceService);
+export class App {
+  readonly authService = inject(AuthService);
 
-  ngOnInit() {
-    this.deviceService.getAll().subscribe({
-      next: devices => console.log('Devices loaded:', devices),
-      error: err => console.error('API error:', err)
-    });
+  logout(): void {
+    this.authService.logout().subscribe();
   }
 }

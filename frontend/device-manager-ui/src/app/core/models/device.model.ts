@@ -20,7 +20,7 @@ export interface CreateDevice {
   processor: string;
   ramAmount: number;
   description: string;
-  assignedUserId?: number;
+  assignedUserId?: number | undefined | null;
 }
 
 export interface UpdateDevice extends CreateDevice {}

@@ -1,0 +1,56 @@
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1>Device Manager</h1>
+      <p>Sign in to your account</p>
+    </div>
+
+    @if (justRegistered) {
+      <div class="success-banner" role="status">
+        Account created — please sign in.
+      </div>
+    }
+
+    @if (error()) {
+      <div class="error-banner" role="alert">{{ error() }}</div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          [class.invalid]="isInvalid('email')"
+          placeholder="you@company.com"
+          autocomplete="email" />
+        @if (isInvalid('email')) {
+          <span class="error-msg">Please enter a valid email address</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          [class.invalid]="isInvalid('password')"
+          placeholder="••••••••"
+          autocomplete="current-password" />
+        @if (isInvalid('password')) {
+          <span class="error-msg">Password is required</span>
+        }
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full" [disabled]="submitting()">
+        {{ submitting() ? 'Signing in…' : 'Sign in' }}
+      </button>
+    </form>
+
+    <p class="auth-footer">
+      Don't have an account? <a routerLink="/register">Register</a>
+    </p>
+  </div>
+</div>

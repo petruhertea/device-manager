@@ -1,9 +1,17 @@
-<header class="app-header">
-  <nav class="nav-container">
-    <a routerLink="/devices" class="nav-brand">Device Manager</a>
-    <a routerLink="/devices/new" class="btn btn-primary">+ Add Device</a>
-  </nav>
-</header>
+@if (authService.isLoggedIn()) {
+  <header class="app-header">
+    <nav class="nav-container">
+      <a routerLink="/devices" class="nav-brand">Device Manager</a>
+      <div class="nav-actions">
+        <span class="nav-user">
+          {{ authService.currentUser()?.fullName }}
+        </span>
+        <a routerLink="/devices/new" class="btn btn-primary btn-sm">+ Add Device</a>
+        <button class="btn btn-secondary btn-sm" (click)="logout()">Sign out</button>
+      </div>
+    </nav>
+  </header>
+}
 <main class="main-content">
-  <router-outlet/>
+  <router-outlet />
 </main>

@@ -1,16 +1,17 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { User } from '../../../core/models/user.model';
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
+import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
+import {User} from '../../../core/models/user.model';
 import {DeviceService} from '../../../core/services/device-service';
 import {UserService} from '../../../core/services/user-service';
+import {forkJoin} from 'rxjs';
 
 @Component({
   selector: 'app-device-form',
-  standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './device-form-component.html',
-  styleUrl: 'device-form-component.scss'
+  styleUrl: 'device-form-component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DeviceFormComponent implements OnInit {
   private route = inject(ActivatedRoute);
@@ -34,24 +35,30 @@ export class DeviceFormComponent implements OnInit {
     osVersion:       ['', Validators.required],
     processor:       ['', Validators.required],
     ramAmount:       [null as number | null, [Validators.required, Validators.min(1)]],
-    description:     ['', Validators.required],
+    description:     [''],
     assignedUserId:  [null as number | null]
   });
 
   ngOnInit() {
-    // Load users for the assignment dropdown
-    this.userService.getAll().subscribe({
-      next: users => this.users.set(users)
-    });
+    const idParam = this.route.snapshot.paramMap.get('id');
 
-    // Check if we're in edit mode
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
+    if (idParam) {
+      // Edit mode — load users and device in parallel
       this.isEditMode.set(true);
-      this.editId.set(Number(id));
+      this.editId.set(Number(idParam));
 
-      this.deviceService.getById(Number(id)).subscribe({
-        next: device => {
+      forkJoin({
+        users: this.userService.getAll(),
+        device: this.deviceService.getById(Number(idParam))
+      }).subscribe({
+        next: ({ users, device }) => {
+          this.users.set(users);
+
+          // Resolve the assignedUserId from the device's assignedUserName
+          const assignedUser = device.assignedUserName
+            ? users.find(u => u.name === device.assignedUserName) ?? null
+            : null;
+
           this.form.patchValue({
             name:            device.name,
             manufacturer:    device.manufacturer,
@@ -61,20 +68,25 @@ export class DeviceFormComponent implements OnInit {
             processor:       device.processor,
             ramAmount:       device.ramAmount,
             description:     device.description,
-            assignedUserId:  null  // populated from separate endpoint in Phase 3
+            assignedUserId:  assignedUser?.id ?? null
           });
         },
         error: () => this.error.set('Failed to load device.')
       });
+    } else {
+      // Create mode — just load users
+      this.userService.getAll().subscribe({
+        next: users => this.users.set(users)
+      });
     }
   }
 
-  isInvalid(field: string) {
+  isInvalid(field: string): boolean {
     const control = this.form.get(field);
-    return control?.invalid && control?.touched;
+    return !!(control?.invalid && control?.touched);
   }
 
-  submit() {
+  submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -82,7 +94,7 @@ export class DeviceFormComponent implements OnInit {
 
     this.submitting.set(true);
     this.error.set(null);
-    this.apiErrors.set({});  // add this signal at the top of the class
+    this.apiErrors.set({});
 
     const payload = {
       ...this.form.value,
@@ -100,8 +112,6 @@ export class DeviceFormComponent implements OnInit {
       next: device => this.router.navigate(['/devices', device.id]),
       error: err => {
         this.submitting.set(false);
-
-        // 400 = validation errors from the server
         if (err.status === 400 && err.error?.errors) {
           this.apiErrors.set(err.error.errors);
         } else {
@@ -112,12 +122,11 @@ export class DeviceFormComponent implements OnInit {
   }
 
   apiError(field: string): string | null {
-    // API returns PascalCase field names, so capitalise the first letter
     const key = field.charAt(0).toUpperCase() + field.slice(1);
     return this.apiErrors()[key]?.[0] ?? null;
   }
 
-  normalizeVersion() {
+  normalizeVersion(): void {
     const val = this.form.get('osVersion')?.value?.trim();
     if (val && !val.includes('.')) {
       this.form.get('osVersion')?.setValue(val + '.0');
