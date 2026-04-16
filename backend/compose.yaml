@@ -1,4 +1,6 @@
-﻿services:
+﻿name: device-manager # This sets the stack/project name
+
+services:
   devicemanager.api:
     image: devicemanager.api
     container_name: devicemanager.api
@@ -30,6 +32,24 @@
       timeout: 5s
       retries: 8
       start_period: 20s
+      
+  angular-dev:
+    image: node:24.12.0-alpine # Ensure Angular supports this version
+    working_dir: /app
+    ports:
+      - "4200:4200"
+    environment:
+      - NG_CLI_ANALYTICS=false
+    volumes:
+      - ../frontend/device-manager-ui:/app
+      - /app/node_modules
+    # Use 'npm install' only if package.json has changed using a shell check
+    command: >
+      sh -c "npm install && 
+             ls node_modules/.bin/ng && 
+             npx ng serve --host 0.0.0.0"
+    stdin_open: true
+    tty: true
 
 volumes:
   device-manager-db-data:

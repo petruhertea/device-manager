@@ -85,5 +85,5 @@ dotnet test DeviceManager.IntegrationTests
 * The AI description feature is optional but recommended for full functionality.
 * If LM Studio is not running, the application will continue to work, but descriptions will not be generated.
 * Ensure ports `1234`, `5000`, and `4200` are available.
-
+* Ensure device-manager-db-data is created before running Docker Compose
 ---
