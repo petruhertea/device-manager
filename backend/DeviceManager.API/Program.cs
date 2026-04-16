@@ -28,8 +28,8 @@ if (!builder.Environment.IsEnvironment("Testing"))
         Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING")
         ?? builder.Configuration.GetConnectionString("DefaultConnection")
         ?? throw new InvalidOperationException(
-               "DATABASE_CONNECTION_STRING is not set. " +
-               "Add it to your .env file (local) or docker-compose.yml (Docker).");
+            "DATABASE_CONNECTION_STRING is not set. " +
+            "Add it to your .env file (local) or docker-compose.yml (Docker).");
 
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlServer(connectionString,
@@ -38,15 +38,15 @@ if (!builder.Environment.IsEnvironment("Testing"))
 
 // Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>(options =>
-{
-    options.Password.RequireDigit           = true;
-    options.Password.RequiredLength         = 6;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireUppercase       = false;
-    options.User.RequireUniqueEmail         = true;
-})
-.AddEntityFrameworkStores<AppDbContext>()
-.AddDefaultTokenProviders();
+    {
+        options.Password.RequireDigit = true;
+        options.Password.RequiredLength = 6;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireUppercase = false;
+        options.User.RequireUniqueEmail = true;
+    })
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
 
 // JWT Authentication
 var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY")
@@ -57,36 +57,36 @@ var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY")
                      "JWT_KEY is not set. Add it to your .env file."));
 
 builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme    = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    // Disable automatic claim type mapping so claim names stay as issued
-    // Without this, 'sub' becomes ClaimTypes.NameIdentifier, 'role' becomes ClaimTypes.Role etc.
-    options.MapInboundClaims = false;
-
-    options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer           = true,
-        ValidateAudience         = true,
-        ValidateLifetime         = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer              = builder.Configuration["JwtSettings:Issuer"] ?? "DeviceManagerAPI",
-        ValidAudience            = builder.Configuration["JwtSettings:Audience"] ?? "DeviceManagerClient",
-        IssuerSigningKey         = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
-    };
-
-    options.Events = new JwtBearerEvents
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
     {
-        OnMessageReceived = context =>
+        // Disable automatic claim type mapping so claim names stay as issued
+        // Without this, 'sub' becomes ClaimTypes.NameIdentifier, 'role' becomes ClaimTypes.Role etc.
+        options.MapInboundClaims = false;
+
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            context.Token = context.Request.Cookies["auth_token"];
-            return Task.CompletedTask;
-        }
-    };
-});
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["JwtSettings:Issuer"] ?? "DeviceManagerAPI",
+            ValidAudience = builder.Configuration["JwtSettings:Audience"] ?? "DeviceManagerClient",
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                context.Token = context.Request.Cookies["auth_token"];
+                return Task.CompletedTask;
+            }
+        };
+    });
 
 builder.Services.AddAuthorization();
 
@@ -96,11 +96,13 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAngular", policy =>
     {
         policy.WithOrigins("http://localhost:4200")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();   // required for cookies
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials(); // required for cookies
     });
 });
+
+builder.Services.AddHttpClient("LmStudio");
 
 // Repositories and services
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
@@ -108,17 +110,18 @@ builder.Services.AddScoped<IDeviceService, DeviceService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-
+builder.Services.AddScoped<IDescriptionGeneratorService, LmStudioDescriptionGeneratorService>();
+builder.Services.AddScoped<IDeviceSearchService, DeviceSearchService>();
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();  // built-in, no extra package needed
+builder.Services.AddOpenApi(); // built-in, no extra package needed
 
 var app = builder.Build();
 
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();  // exposes the spec at /openapi/v1.json
-    app.MapScalarApiReference();  // UI at /scalar/v1
+    app.MapOpenApi(); // exposes the spec at /openapi/v1.json
+    app.MapScalarApiReference(); // UI at /scalar/v1
 }
 
 
@@ -129,7 +132,7 @@ if (!app.Environment.IsEnvironment("Testing"))
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-    await DatabaseSeeder.SeedAsync(db, userManager,logger);
+    await DatabaseSeeder.SeedAsync(db, userManager, logger);
 }
 
 app.UseCors("AllowAngular");
@@ -138,4 +141,6 @@ app.MapControllers();
 app.Run();
 
 // Makes the implicit Program class accessible to the test project
-public partial class Program { }
+public partial class Program
+{
+}

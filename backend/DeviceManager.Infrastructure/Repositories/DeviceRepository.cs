@@ -9,7 +9,7 @@ public class DeviceRepository(AppDbContext context) : IDeviceRepository
 {
     public async Task<IEnumerable<Device>> GetAllAsync()
         => await context.Devices
-            .Include(d => d.AssignedUser)  // like @EntityGraph / JOIN FETCH in JPA
+            .Include(d => d.AssignedUser) // like @EntityGraph / JOIN FETCH in JPA
             .ToListAsync();
 
     public async Task<Device?> GetByIdAsync(int id)

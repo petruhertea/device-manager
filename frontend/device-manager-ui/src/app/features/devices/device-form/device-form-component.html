@@ -5,10 +5,10 @@
 
 <div class="card">
   @if (error()) {
-    <div class="error-banner">{{ error() }}</div>
+    <div class="error-banner" role="alert">{{ error() }}</div>
   }
 
-  <form [formGroup]="form" (ngSubmit)="submit()">
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
     <div class="form-row">
       <div class="form-group">
         <label for="name">Name</label>
@@ -66,8 +66,8 @@
         <label for="osVersion">OS Version</label>
         <input id="osVersion" formControlName="osVersion"
                [class.invalid]="isInvalid('osVersion') || apiError('osVersion')"
-               placeholder="e.g. 17.4",
-               (blur)="normalizeVersion()"/>
+               placeholder="e.g. 17.4"
+               (blur)="normalizeVersion()" />
         @if (isInvalid('osVersion')) {
           <span class="error-msg">OS version is required (format: 16.0)</span>
         } @else if (apiError('osVersion')) {
@@ -80,7 +80,7 @@
       <div class="form-group">
         <label for="processor">Processor</label>
         <input id="processor" formControlName="processor"
-               [class.invalid]="isInvalid('processor')|| apiError('processor')"
+               [class.invalid]="isInvalid('processor') || apiError('processor')"
                placeholder="e.g. A17 Pro" />
         @if (isInvalid('processor')) {
           <span class="error-msg">Processor is required</span>
@@ -90,7 +90,7 @@
       <div class="form-group">
         <label for="ramAmount">RAM (GB)</label>
         <input id="ramAmount" type="number" formControlName="ramAmount"
-               [class.invalid]="isInvalid('ramAmount')|| apiError('ramAmount')"
+               [class.invalid]="isInvalid('ramAmount') || apiError('ramAmount')"
                placeholder="e.g. 8" min="1" />
         @if (isInvalid('ramAmount')) {
           <span class="error-msg">RAM amount is required</span>
@@ -98,20 +98,37 @@
       </div>
     </div>
 
+    <!-- Description with inline generate button -->
     <div class="form-group">
-      <label for="description">Description</label>
+      <div class="description-label-row">
+        <label for="description">Description</label>
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm generate-btn"
+          [disabled]="!canGenerate || generating()"
+          (click)="generateDescription()"
+          [title]="canGenerate ? 'Generate from specs using AI' : 'Fill in the specs above first'">
+          @if (generating()) {
+            <span class="spinner" aria-hidden="true"></span>
+            Generating…
+          } @else {
+            ✦ Generate
+          }
+        </button>
+      </div>
       <textarea id="description" formControlName="description"
-                [class.invalid]="isInvalid('description')|| apiError('description')"
-                rows="3" placeholder="Brief description of the device"></textarea>
-      @if (isInvalid('description')) {
-        <span class="error-msg">Description is required</span>
+                [class.invalid]="apiError('description')"
+                rows="3"
+                placeholder="Brief description — or leave empty to auto-generate on save"></textarea>
+      @if (genError()) {
+        <span class="error-msg">{{ genError() }}</span>
       }
     </div>
 
-    <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem;">
+    <div class="form-actions">
       <a routerLink="/devices" class="btn btn-secondary">Cancel</a>
       <button type="submit" class="btn btn-primary" [disabled]="submitting()">
-        {{ submitting() ? 'Saving...' : (isEditMode() ? 'Save Changes' : 'Add Device') }}
+        {{ submitting() ? 'Saving…' : (isEditMode() ? 'Save Changes' : 'Add Device') }}
       </button>
     </div>
   </form>

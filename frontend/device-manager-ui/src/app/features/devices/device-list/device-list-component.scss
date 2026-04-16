@@ -1,3 +1,68 @@
+.search-bar {
+  margin-bottom: 1.25rem;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.85rem;
+  font-size: 1.1rem;
+  color: #94a3b8;
+  pointer-events: none;
+  // Optical vertical alignment for the ⌕ glyph
+  line-height: 1;
+  margin-top: 1px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.6rem 2.5rem 0.6rem 2.4rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.925rem;
+  font-family: inherit;
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+  }
+
+  // Remove browser default clear button — we have our own
+  &::-webkit-search-cancel-button { display: none; }
+}
+
+.search-clear {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  padding: 0.2rem;
+  line-height: 1;
+
+  &:hover { color: #475569; }
+}
+
+.search-meta {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-bottom: 0.75rem;
+
+  strong { color: #1e293b; }
+}
+
+// ── Table (unchanged from original, reproduced for completeness) ──────────────
+
 .device-table {
   width: 100%;
   border-collapse: collapse;

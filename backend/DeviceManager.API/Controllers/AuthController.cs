@@ -35,9 +35,9 @@ public class AuthController(IAuthService authService) : ControllerBase
             Response.Cookies.Append("auth_token", token, new CookieOptions
             {
                 HttpOnly = true,
-                Secure   = false,    // set to true in production (HTTPS only)
+                Secure = false, // set to true in production (HTTPS only)
                 SameSite = SameSiteMode.Strict,
-                Expires  = DateTimeOffset.UtcNow.AddMinutes(60)
+                Expires = DateTimeOffset.UtcNow.AddMinutes(60)
             });
 
             return Ok(user);
@@ -59,17 +59,17 @@ public class AuthController(IAuthService authService) : ControllerBase
     [Authorize]
     public ActionResult<AuthUserDto> Me()
     {
-        var id       = User.FindFirst("sub")?.Value;
-        var email    = User.FindFirst("email")?.Value;
+        var id = User.FindFirst("sub")?.Value;
+        var email = User.FindFirst("email")?.Value;
         var fullName = User.FindFirst(ClaimTypes.Name)?.Value;
-        var role     = User.FindFirst("role")?.Value;
+        var role = User.FindFirst("role")?.Value;
 
         return Ok(new AuthUserDto
         {
-            Id       = int.TryParse(id, out var parsedId) ? parsedId : 0,
-            Email    = email    ?? string.Empty,
+            Id = int.TryParse(id, out var parsedId) ? parsedId : 0,
+            Email = email ?? string.Empty,
             FullName = fullName ?? string.Empty,
-            Role     = role     ?? string.Empty,
+            Role = role ?? string.Empty,
             Location = string.Empty
         });
     }

@@ -80,14 +80,14 @@ public class DevicesControllerTests : IAsyncLifetime
     {
         var newDevice = new CreateDeviceDto
         {
-            Name            = "Pixel 8",
-            Manufacturer    = "Google",
-            Type            = "phone",
+            Name = "Pixel 8",
+            Manufacturer = "Google",
+            Type = "phone",
             OperatingSystem = "Android",
-            OsVersion       = "14.0",
-            Processor       = "Tensor G3",
-            RamAmount       = 8,
-            Description     = "Google flagship"
+            OsVersion = "14.0",
+            Processor = "Tensor G3",
+            RamAmount = 8,
+            Description = "Google flagship"
         };
 
         var response = await _client.PostAsJsonAsync(DeviceEndpoint, newDevice);
@@ -113,20 +113,20 @@ public class DevicesControllerTests : IAsyncLifetime
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
-    
+
     [Fact]
     public async Task Create_InvalidOsVersion_ReturnsBadRequest_WithValidationError()
     {
         var newDevice = new CreateDeviceDto
         {
-            Name            = "Test Phone",
-            Manufacturer    = "Test",
-            Type            = "phone",
+            Name = "Test Phone",
+            Manufacturer = "Test",
+            Type = "phone",
             OperatingSystem = "Android",
-            OsVersion       = "16",       // missing the .0 — should fail
-            Processor       = "Snapdragon",
-            RamAmount       = 8,
-            Description     = "Test"
+            OsVersion = "16", // missing the .0 — should fail
+            Processor = "Snapdragon",
+            RamAmount = 8,
+            Description = "Test"
         };
 
         var response = await _client.PostAsJsonAsync(DeviceEndpoint, newDevice);
@@ -142,14 +142,14 @@ public class DevicesControllerTests : IAsyncLifetime
     {
         var newDevice = new CreateDeviceDto
         {
-            Name            = "Test",
-            Manufacturer    = "Test",
-            Type            = "laptop",   // not phone or tablet
+            Name = "Test",
+            Manufacturer = "Test",
+            Type = "laptop", // not phone or tablet
             OperatingSystem = "Windows",
-            OsVersion       = "11.0",
-            Processor       = "Intel",
-            RamAmount       = 16,
-            Description     = "Test"
+            OsVersion = "11.0",
+            Processor = "Intel",
+            RamAmount = 16,
+            Description = "Test"
         };
 
         var response = await _client.PostAsJsonAsync(DeviceEndpoint, newDevice);
@@ -178,14 +178,14 @@ public class DevicesControllerTests : IAsyncLifetime
     {
         var update = new UpdateDeviceDto
         {
-            Name            = "iPhone 15 Pro Max",
-            Manufacturer    = "Apple",
-            Type            = "phone",
+            Name = "iPhone 15 Pro Max",
+            Manufacturer = "Apple",
+            Type = "phone",
             OperatingSystem = "iOS",
-            OsVersion       = "17.5",
-            Processor       = "A17 Pro",
-            RamAmount       = 8,
-            Description     = "Updated model"
+            OsVersion = "17.5",
+            Processor = "A17 Pro",
+            RamAmount = 8,
+            Description = "Updated model"
         };
 
         var response = await _client.PutAsJsonAsync(DeviceEndpoint + "/1", update);

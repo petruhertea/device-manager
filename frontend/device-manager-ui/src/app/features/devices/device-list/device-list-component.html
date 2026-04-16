@@ -2,15 +2,46 @@
   <h1>Devices</h1>
 </div>
 
+<!-- Search bar -->
+<div class="search-bar">
+  <div class="search-input-wrapper">
+    <span class="search-icon" aria-hidden="true">⌕</span>
+    <input
+      type="search"
+      [ngModel]="searchQuery()"
+      (ngModelChange)="onSearchInput($event)"
+      placeholder="Search by name, manufacturer, processor or RAM…"
+      aria-label="Search devices"
+      class="search-input" />
+    @if (isSearching()) {
+      <button
+        class="search-clear"
+        aria-label="Clear search"
+        (click)="clearSearch()">✕</button>
+    }
+  </div>
+</div>
+
 @if (error()) {
-  <div class="error-banner">{{ error() }}</div>
+  <div class="error-banner" role="alert">{{ error() }}</div>
 }
 
 @if (loading()) {
-  <p class="state-message">Loading devices...</p>
-} @else if (devices().length === 0) {
+  <p class="state-message">Loading devices…</p>
+} @else if (searching()) {
+  <p class="state-message">Searching…</p>
+} @else if (displayed().length === 0 && isSearching()) {
+  <p class="state-message">No devices matched "<strong>{{ searchQuery() }}</strong>".</p>
+} @else if (displayed().length === 0) {
   <p class="state-message">No devices found. Add one to get started.</p>
 } @else {
+  @if (isSearching()) {
+    <p class="search-meta">
+      {{ displayed().length }} result{{ displayed().length === 1 ? '' : 's' }}
+      for "<strong>{{ searchQuery() }}</strong>"
+    </p>
+  }
+
   <div class="card" style="padding: 0; overflow: hidden;">
     <table class="device-table">
       <thead>
@@ -25,7 +56,7 @@
       </tr>
       </thead>
       <tbody>
-        @for (device of devices(); track device.id) {
+        @for (device of displayed(); track device.id) {
           <tr (click)="goToDetail(device.id)" class="device-row">
             <td class="device-name">{{ device.name }}</td>
             <td>{{ device.manufacturer }}</td>
@@ -47,7 +78,7 @@
                 class="btn btn-danger btn-sm"
                 [disabled]="deletingId() === device.id"
                 (click)="deleteDevice($event, device.id)">
-                {{ deletingId() === device.id ? '...' : 'Delete' }}
+                {{ deletingId() === device.id ? '…' : 'Delete' }}
               </button>
             </td>
           </tr>

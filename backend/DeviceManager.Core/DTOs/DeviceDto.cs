@@ -11,5 +11,5 @@ public class DeviceDto
     public string Processor { get; set; } = string.Empty;
     public int RamAmount { get; set; }
     public string Description { get; set; } = string.Empty;
-    public string? AssignedUserName { get; set; }  // flattened — no nested object
+    public string? AssignedUserName { get; set; } // flattened — no nested object
 }

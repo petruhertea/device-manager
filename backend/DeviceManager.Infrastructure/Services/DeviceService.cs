@@ -4,7 +4,10 @@ using DeviceManager.Core.Models;
 
 namespace DeviceManager.Infrastructure.Services;
 
-public class DeviceService(IDeviceRepository repository) : IDeviceService
+public class DeviceService(
+    IDeviceRepository repository,
+    IDescriptionGeneratorService descriptionGenerator)
+    : IDeviceService
 {
     public async Task<IEnumerable<DeviceDto>> GetAllAsync()
     {
@@ -22,16 +25,25 @@ public class DeviceService(IDeviceRepository repository) : IDeviceService
     {
         var device = new Device
         {
-            Name = dto.Name,
-            Manufacturer = dto.Manufacturer,
-            Type = dto.Type,
+            Name            = dto.Name,
+            Manufacturer    = dto.Manufacturer,
+            Type            = dto.Type,
             OperatingSystem = dto.OperatingSystem,
-            OsVersion = dto.OsVersion,
-            Processor = dto.Processor,
-            RamAmount = dto.RamAmount,
-            Description = dto.Description,
-            AssignedUserId = dto.AssignedUserId
+            OsVersion       = dto.OsVersion,
+            Processor       = dto.Processor,
+            RamAmount       = dto.RamAmount,
+            Description     = dto.Description,
+            AssignedUserId  = dto.AssignedUserId
         };
+
+        // Auto-generate description if the user left it blank
+        if (string.IsNullOrWhiteSpace(device.Description))
+        {
+            device.Description = await descriptionGenerator.GenerateAsync(
+                device.Name, device.Manufacturer, device.Type,
+                device.OperatingSystem, device.Processor, device.RamAmount)
+                ?? string.Empty;
+        }
 
         var created = await repository.CreateAsync(device);
         return ToDto(created);
@@ -41,16 +53,25 @@ public class DeviceService(IDeviceRepository repository) : IDeviceService
     {
         var device = new Device
         {
-            Name = dto.Name,
-            Manufacturer = dto.Manufacturer,
-            Type = dto.Type,
+            Name            = dto.Name,
+            Manufacturer    = dto.Manufacturer,
+            Type            = dto.Type,
             OperatingSystem = dto.OperatingSystem,
-            OsVersion = dto.OsVersion,
-            Processor = dto.Processor,
-            RamAmount = dto.RamAmount,
-            Description = dto.Description,
-            AssignedUserId = dto.AssignedUserId
+            OsVersion       = dto.OsVersion,
+            Processor       = dto.Processor,
+            RamAmount       = dto.RamAmount,
+            Description     = dto.Description,
+            AssignedUserId  = dto.AssignedUserId
         };
+
+        // Auto-generate description if the user left it blank
+        if (string.IsNullOrWhiteSpace(device.Description))
+        {
+            device.Description = await descriptionGenerator.GenerateAsync(
+                device.Name, device.Manufacturer, device.Type,
+                device.OperatingSystem, device.Processor, device.RamAmount)
+                ?? string.Empty;
+        }
 
         var updated = await repository.UpdateAsync(id, device);
         return updated is null ? null : ToDto(updated);
@@ -61,15 +82,15 @@ public class DeviceService(IDeviceRepository repository) : IDeviceService
 
     private static DeviceDto ToDto(Device d) => new()
     {
-        Id = d.Id,
-        Name = d.Name,
-        Manufacturer = d.Manufacturer,
-        Type = d.Type,
-        OperatingSystem = d.OperatingSystem,
-        OsVersion = d.OsVersion,
-        Processor = d.Processor,
-        RamAmount = d.RamAmount,
-        Description = d.Description,
+        Id               = d.Id,
+        Name             = d.Name,
+        Manufacturer     = d.Manufacturer,
+        Type             = d.Type,
+        OperatingSystem  = d.OperatingSystem,
+        OsVersion        = d.OsVersion,
+        Processor        = d.Processor,
+        RamAmount        = d.RamAmount,
+        Description      = d.Description,
         AssignedUserName = d.AssignedUser?.FullName
     };
 }

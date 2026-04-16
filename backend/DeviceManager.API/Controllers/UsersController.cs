@@ -24,7 +24,7 @@ public class UsersController(IUserService service) : ControllerBase
         var user = await service.GetByIdAsync(id);
         return user is null ? NotFound() : Ok(user);
     }
-    
+
     // TODO Phase 3: add POST /register and POST /login endpoints here
     // TODO Phase 3: add GET /me endpoint to return the currently authenticated user
 }

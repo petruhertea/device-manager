@@ -16,7 +16,7 @@ public class AuthControllerTests : IAsyncLifetime
     public AuthControllerTests(DeviceManagerWebAppFactory factory)
     {
         _factory = factory;
-        _client  = factory.CreateClient();
+        _client = factory.CreateClient();
     }
 
     public Task InitializeAsync()
@@ -35,7 +35,7 @@ public class AuthControllerTests : IAsyncLifetime
         var dto = new RegisterDto
         {
             FullName = "Dave New",
-            Email    = "dave@company.com",
+            Email = "dave@company.com",
             Password = "Password1!",
             Location = "Dublin"
         };
@@ -57,7 +57,7 @@ public class AuthControllerTests : IAsyncLifetime
         var dto = new RegisterDto
         {
             FullName = "Alice Clone",
-            Email    = "alice@company.com",
+            Email = "alice@company.com",
             Password = "Password1!"
         };
 
@@ -81,7 +81,7 @@ public class AuthControllerTests : IAsyncLifetime
     {
         var dto = new LoginDto
         {
-            Email    = "alice@company.com",
+            Email = "alice@company.com",
             Password = "Password1!"
         };
 
@@ -103,7 +103,7 @@ public class AuthControllerTests : IAsyncLifetime
     {
         var dto = new LoginDto
         {
-            Email    = "alice@company.com",
+            Email = "alice@company.com",
             Password = "WrongPassword!"
         };
 
@@ -117,7 +117,7 @@ public class AuthControllerTests : IAsyncLifetime
     {
         var dto = new LoginDto
         {
-            Email    = "nobody@company.com",
+            Email = "nobody@company.com",
             Password = "Password1!"
         };
 

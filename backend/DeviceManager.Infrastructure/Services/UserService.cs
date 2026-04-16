@@ -20,10 +20,10 @@ public class UserService(IUserRepository repository) : IUserService
 
     private static UserDto ToDto(ApplicationUser u) => new()
     {
-        Id                  = u.Id,
-        Name                = u.FullName,
-        Role                = u.Role,
-        Location            = u.Location,
+        Id = u.Id,
+        Name = u.FullName,
+        Role = u.Role,
+        Location = u.Location,
         AssignedDeviceNames = u.AssignedDevices.Select(d => d.Name)
     };
 }
