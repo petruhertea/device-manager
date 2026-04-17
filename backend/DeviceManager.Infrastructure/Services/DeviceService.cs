@@ -10,10 +10,7 @@ public class DeviceService(
     : IDeviceService
 {
     public async Task<IEnumerable<DeviceDto>> GetAllAsync()
-    {
-        var devices = await repository.GetAllAsync();
-        return devices.Select(ToDto);
-    }
+        => (await repository.GetAllAsync()).Select(ToDto);
 
     public async Task<DeviceDto?> GetByIdAsync(int id)
     {
@@ -36,17 +33,13 @@ public class DeviceService(
             AssignedUserId  = dto.AssignedUserId
         };
 
-        // Auto-generate description if the user left it blank
         if (string.IsNullOrWhiteSpace(device.Description))
-        {
             device.Description = await descriptionGenerator.GenerateAsync(
                 device.Name, device.Manufacturer, device.Type,
                 device.OperatingSystem, device.Processor, device.RamAmount)
                 ?? string.Empty;
-        }
 
-        var created = await repository.CreateAsync(device);
-        return ToDto(created);
+        return ToDto(await repository.CreateAsync(device));
     }
 
     public async Task<DeviceDto?> UpdateAsync(int id, UpdateDeviceDto dto)
@@ -64,16 +57,36 @@ public class DeviceService(
             AssignedUserId  = dto.AssignedUserId
         };
 
-        // Auto-generate description if the user left it blank
         if (string.IsNullOrWhiteSpace(device.Description))
-        {
             device.Description = await descriptionGenerator.GenerateAsync(
                 device.Name, device.Manufacturer, device.Type,
                 device.OperatingSystem, device.Processor, device.RamAmount)
                 ?? string.Empty;
-        }
 
         var updated = await repository.UpdateAsync(id, device);
+        return updated is null ? null : ToDto(updated);
+    }
+
+    public async Task<DeviceDto?> AssignAsync(int deviceId, int? userId)
+    {
+        // Load the current device so we can patch only AssignedUserId
+        var existing = await repository.GetByIdAsync(deviceId);
+        if (existing is null) return null;
+
+        var patched = new Device
+        {
+            Name            = existing.Name,
+            Manufacturer    = existing.Manufacturer,
+            Type            = existing.Type,
+            OperatingSystem = existing.OperatingSystem,
+            OsVersion       = existing.OsVersion,
+            Processor       = existing.Processor,
+            RamAmount       = existing.RamAmount,
+            Description     = existing.Description,
+            AssignedUserId  = userId      // the only field that changes
+        };
+
+        var updated = await repository.UpdateAsync(deviceId, patched);
         return updated is null ? null : ToDto(updated);
     }
 

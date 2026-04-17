@@ -70,6 +70,7 @@ public class AuthService(
             new Claim("email", user.Email!),
             new Claim("name", user.FullName),
             new Claim("role", user.Role),
+            new Claim("location", user.Location ?? string.Empty),
             new Claim("jti", Guid.NewGuid().ToString())
         };
 

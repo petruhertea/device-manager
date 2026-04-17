@@ -3,10 +3,10 @@
     <nav class="nav-container">
       <a routerLink="/devices" class="nav-brand">Device Manager</a>
       <div class="nav-actions">
-        <span class="nav-user">
-          {{ authService.currentUser()?.fullName }}
-        </span>
-        <a routerLink="/devices/new" class="btn btn-primary btn-sm">+ Add Device</a>
+        <span class="nav-user">{{ authService.currentUser()?.fullName }}</span>
+        @if (authService.isAdmin()) {
+          <a routerLink="/devices/new" class="btn btn-primary btn-sm">+ Add Device</a>
+        }
         <button class="btn btn-secondary btn-sm" (click)="logout()">Sign out</button>
       </div>
     </nav>

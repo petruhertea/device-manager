@@ -61,8 +61,9 @@ public class AuthController(IAuthService authService) : ControllerBase
     {
         var id = User.FindFirst("sub")?.Value;
         var email = User.FindFirst("email")?.Value;
-        var fullName = User.FindFirst(ClaimTypes.Name)?.Value;
+        var fullName = User.FindFirst("name")?.Value;
         var role = User.FindFirst("role")?.Value;
+        var location = User.FindFirst("location")?.Value;
 
         return Ok(new AuthUserDto
         {
@@ -70,7 +71,7 @@ public class AuthController(IAuthService authService) : ControllerBase
             Email = email ?? string.Empty,
             FullName = fullName ?? string.Empty,
             Role = role ?? string.Empty,
-            Location = string.Empty
+            Location = location ?? string.Empty
         });
     }
 }

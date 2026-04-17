@@ -1,0 +1,13 @@
+### Login (no further authorization needed as we are using cookie-based authentication)
+@DeviceManager_HostAddress = http://localhost:8080
+
+POST {{DeviceManager_HostAddress}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+    "email":"alice@company.com",
+    "password": "Password1!"
+}
+
+
+###

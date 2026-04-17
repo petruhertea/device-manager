@@ -2,7 +2,6 @@
   <h1>Devices</h1>
 </div>
 
-<!-- Search bar -->
 <div class="search-bar">
   <div class="search-input-wrapper">
     <span class="search-icon" aria-hidden="true">⌕</span>
@@ -14,10 +13,7 @@
       aria-label="Search devices"
       class="search-input" />
     @if (isSearching()) {
-      <button
-        class="search-clear"
-        aria-label="Clear search"
-        (click)="clearSearch()">✕</button>
+      <button class="search-clear" aria-label="Clear search" (click)="clearSearch()">✕</button>
     }
   </div>
 </div>
@@ -52,7 +48,7 @@
         <th>OS</th>
         <th>RAM</th>
         <th>Assigned To</th>
-        <th></th>
+        @if (isAdmin()) { <th></th> }
       </tr>
       </thead>
       <tbody>
@@ -70,17 +66,19 @@
                 <span class="badge badge-unassigned">Unassigned</span>
               }
             </td>
-            <td class="actions-cell">
-              <a [routerLink]="['/devices', device.id, 'edit']"
-                 (click)="$event.stopPropagation()"
-                 class="btn btn-secondary btn-sm">Edit</a>
-              <button
-                class="btn btn-danger btn-sm"
-                [disabled]="deletingId() === device.id"
-                (click)="deleteDevice($event, device.id)">
-                {{ deletingId() === device.id ? '…' : 'Delete' }}
-              </button>
-            </td>
+            @if (isAdmin()) {
+              <td class="actions-cell">
+                <a [routerLink]="['/devices', device.id, 'edit']"
+                   (click)="$event.stopPropagation()"
+                   class="btn btn-secondary btn-sm">Edit</a>
+                <button
+                  class="btn btn-danger btn-sm"
+                  [disabled]="deletingId() === device.id"
+                  (click)="deleteDevice($event, device.id)">
+                  {{ deletingId() === device.id ? '…' : 'Delete' }}
+                </button>
+              </td>
+            }
           </tr>
         }
       </tbody>

@@ -4,6 +4,7 @@ import {FormsModule} from '@angular/forms';
 import {debounceTime, distinctUntilChanged, of, Subject, switchMap} from 'rxjs';
 import {Device} from '../../../core/models/device.model';
 import {DeviceService} from '../../../core/services/device-service';
+import {AuthService} from '../../../core/services/auth-service';
 
 @Component({
   selector: 'app-device-list',
@@ -13,17 +14,19 @@ import {DeviceService} from '../../../core/services/device-service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DeviceListComponent implements OnInit {
-  private deviceService = inject(DeviceService);
-  private router        = inject(Router);
+  private deviceService  = inject(DeviceService);
+  private router         = inject(Router);
+  private authService    = inject(AuthService);
 
   allDevices  = signal<Device[]>([]);
-  displayed   = signal<Device[]>([]);   // what the table actually shows
+  displayed   = signal<Device[]>([]);
   loading     = signal(true);
   searching   = signal(false);
   error       = signal<string | null>(null);
   deletingId  = signal<number | null>(null);
   searchQuery = signal('');
 
+  readonly isAdmin     = computed(() => this.authService.currentUser()?.role === 'Admin');
   readonly isSearching = computed(() => this.searchQuery().trim().length > 0);
 
   private readonly search$ = new Subject<string>();
@@ -31,20 +34,16 @@ export class DeviceListComponent implements OnInit {
   ngOnInit() {
     this.loadDevices();
 
-    // Debounce search input — waits 350 ms after the user stops typing
     this.search$
       .pipe(
         debounceTime(350),
         distinctUntilChanged(),
         switchMap(query => {
           const trimmed = query.trim();
-
           if (!trimmed) {
-            // Empty query → restore full list
             this.searching.set(false);
             return of(this.allDevices());
           }
-
           this.searching.set(true);
           return this.deviceService.search(trimmed);
         })
@@ -96,7 +95,6 @@ export class DeviceListComponent implements OnInit {
     this.deletingId.set(id);
     this.deviceService.delete(id).subscribe({
       next: () => {
-        // Remove from both lists so UI stays consistent regardless of search state
         this.allDevices.update(ds => ds.filter(d => d.id !== id));
         this.displayed.update(ds => ds.filter(d => d.id !== id));
         this.deletingId.set(null);

@@ -9,7 +9,7 @@ public class DeviceRepository(AppDbContext context) : IDeviceRepository
 {
     public async Task<IEnumerable<Device>> GetAllAsync()
         => await context.Devices
-            .Include(d => d.AssignedUser) // like @EntityGraph / JOIN FETCH in JPA
+            .Include(d => d.AssignedUser)
             .ToListAsync();
 
     public async Task<Device?> GetByIdAsync(int id)
@@ -21,7 +21,9 @@ public class DeviceRepository(AppDbContext context) : IDeviceRepository
     {
         context.Devices.Add(device);
         await context.SaveChangesAsync();
-        return device;
+
+        // Reload with navigation property so AssignedUserName is populated in the DTO
+        return await GetByIdAsync(device.Id) ?? device;
     }
 
     public async Task<Device?> UpdateAsync(int id, Device updated)
@@ -29,18 +31,21 @@ public class DeviceRepository(AppDbContext context) : IDeviceRepository
         var device = await context.Devices.FindAsync(id);
         if (device is null) return null;
 
-        device.Name = updated.Name;
-        device.Manufacturer = updated.Manufacturer;
-        device.Type = updated.Type;
+        device.Name            = updated.Name;
+        device.Manufacturer    = updated.Manufacturer;
+        device.Type            = updated.Type;
         device.OperatingSystem = updated.OperatingSystem;
-        device.OsVersion = updated.OsVersion;
-        device.Processor = updated.Processor;
-        device.RamAmount = updated.RamAmount;
-        device.Description = updated.Description;
-        device.AssignedUserId = updated.AssignedUserId;
+        device.OsVersion       = updated.OsVersion;
+        device.Processor       = updated.Processor;
+        device.RamAmount       = updated.RamAmount;
+        device.Description     = updated.Description;
+        device.AssignedUserId  = updated.AssignedUserId;
 
         await context.SaveChangesAsync();
-        return device;
+
+        // FindAsync doesn't join — reload with the navigation property so the
+        // caller gets AssignedUser.FullName correctly populated
+        return await GetByIdAsync(id);
     }
 
     public async Task<bool> DeleteAsync(int id)

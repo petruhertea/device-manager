@@ -1,0 +1,6 @@
+### GET request to get profile information from JWT claims
+@DeviceManager_HostAddress = http://localhost:8080
+
+GET {{DeviceManager_HostAddress}}/api/v1/auth/me
+
+###

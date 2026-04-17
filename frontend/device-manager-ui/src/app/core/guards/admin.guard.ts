@@ -1,0 +1,13 @@
+﻿import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from '../services/auth-service';
+
+export const adminGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
+  const router      = inject(Router);
+
+  if (authService.currentUser()?.role === 'Admin') return true;
+
+  // Employee trying to navigate directly to an admin route — send them back
+  return router.createUrlTree(['/devices']);
+};

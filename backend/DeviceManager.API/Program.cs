@@ -88,7 +88,15 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
-builder.Services.AddAuthorization();
+
+builder.Services.AddAuthorization(options =>
+{
+    // Any authenticated user
+    options.AddPolicy("AnyUser", policy => policy.RequireAuthenticatedUser());
+
+    // Admins only — used for create / update / delete / generate-description
+    options.AddPolicy("AdminOnly", policy => policy.RequireClaim("role", "Admin"));
+});
 
 // CORS — must allow credentials for cookies to work
 builder.Services.AddCors(options =>

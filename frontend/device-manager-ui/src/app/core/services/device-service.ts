@@ -31,9 +31,7 @@ export class DeviceService {
   }
 
   search(query: string): Observable<Device[]> {
-    return this.http.get<Device[]>(`${this.baseUrl}/search`, {
-      params: { q: query }
-    });
+    return this.http.get<Device[]>(`${this.baseUrl}/search`, { params: { q: query } });
   }
 
   create(device: CreateDevice): Observable<Device> {
@@ -46,6 +44,14 @@ export class DeviceService {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  /** Assign device to a user (userId) or clear assignment (null). */
+  updateAssignment(deviceId: number, userId: number | null): Observable<Device> {
+    return this.http.patch<Device>(
+      `${this.baseUrl}/${deviceId}/assignment`,
+      { userId }
+    );
   }
 
   generateDescription(req: GenerateDescriptionRequest): Observable<GenerateDescriptionResponse> {

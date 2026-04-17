@@ -12,35 +12,27 @@ import {AuthService} from '../../../core/services/auth-service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DeviceDetailComponent implements OnInit {
-  private route = inject(ActivatedRoute);
+  private route         = inject(ActivatedRoute);
   private deviceService = inject(DeviceService);
-  readonly authService = inject(AuthService);
+  readonly authService  = inject(AuthService);
 
-  device = signal<Device | null>(null);
-  loading = signal(true);
-  error = signal<string | null>(null);
+  device   = signal<Device | null>(null);
+  loading  = signal(true);
+  error    = signal<string | null>(null);
   assigning = signal(false);
 
-  /**
-   * True when the device is assigned to the currently logged-in user.
-   * Used to show "Unassign" instead of "Assign to me".
-   */
+  readonly isAdmin = computed(() => this.authService.currentUser()?.role === 'Admin');
+
   readonly isAssignedToMe = computed(() => {
-    const user = this.authService.currentUser();
+    const user   = this.authService.currentUser();
     const device = this.device();
-    if (!user || !device) return false;
+    if (!user || !device?.assignedUserName) return false;
     return device.assignedUserName === user.fullName;
   });
 
-  /**
-   * True when the device is assigned to someone else.
-   * The assign button should be hidden in this case.
-   */
-  readonly isAssignedToOther = computed(() => {
-    const device = this.device();
-    if (!device?.assignedUserName) return false;
-    return !this.isAssignedToMe();
-  });
+  readonly isAssignedToOther = computed(() =>
+    !!this.device()?.assignedUserName && !this.isAssignedToMe()
+  );
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -49,46 +41,28 @@ export class DeviceDetailComponent implements OnInit {
 
   private loadDevice(id: number): void {
     this.deviceService.getById(id).subscribe({
-      next: device => {
-        this.device.set(device);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.error.set('Device not found.');
-        this.loading.set(false);
-      }
+      next:  device => { this.device.set(device); this.loading.set(false); },
+      error: ()     => { this.error.set('Device not found.'); this.loading.set(false); }
     });
   }
 
   assignToMe(): void {
     const device = this.device();
-    const user = this.authService.currentUser();
+    const user   = this.authService.currentUser();
     if (!device || !user) return;
 
     this.assigning.set(true);
     this.error.set(null);
 
-    // Build a full UpdateDeviceDto — the PUT endpoint replaces the whole entity
-    const payload = {
-      name:            device.name,
-      manufacturer:    device.manufacturer,
-      type:            device.type,
-      operatingSystem: device.operatingSystem,
-      osVersion:       device.osVersion,
-      processor:       device.processor,
-      ramAmount:       device.ramAmount,
-      description:     device.description,
-      assignedUserId:  user.id
-    };
-
-    this.deviceService.update(device.id, payload).subscribe({
-      next: updated => {
-        this.device.set(updated);
+    this.deviceService.updateAssignment(device.id, user.id).subscribe({
+      next:  updated => { this.device.set(updated); this.assigning.set(false); },
+      error: err     => {
         this.assigning.set(false);
-      },
-      error: () => {
-        this.error.set('Failed to assign device. Please try again.');
-        this.assigning.set(false);
+        this.error.set(
+          err.status === 409
+            ? 'This device has just been assigned to someone else.'
+            : 'Failed to assign device. Please try again.'
+        );
       }
     });
   }
@@ -100,26 +74,11 @@ export class DeviceDetailComponent implements OnInit {
     this.assigning.set(true);
     this.error.set(null);
 
-    const payload = {
-      name:            device.name,
-      manufacturer:    device.manufacturer,
-      type:            device.type,
-      operatingSystem: device.operatingSystem,
-      osVersion:       device.osVersion,
-      processor:       device.processor,
-      ramAmount:       device.ramAmount,
-      description:     device.description,
-      assignedUserId:  null
-    };
-
-    this.deviceService.update(device.id, payload).subscribe({
-      next: updated => {
-        this.device.set(updated);
+    this.deviceService.updateAssignment(device.id, null).subscribe({
+      next:  updated => { this.device.set(updated); this.assigning.set(false); },
+      error: ()      => {
         this.assigning.set(false);
-      },
-      error: () => {
         this.error.set('Failed to unassign device. Please try again.');
-        this.assigning.set(false);
       }
     });
   }
