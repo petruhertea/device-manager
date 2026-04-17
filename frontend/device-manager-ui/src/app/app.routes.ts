@@ -1,9 +1,9 @@
-import { Routes } from '@angular/router';
-import { authGuard } from './core/guards/auth.guard';
-import { adminGuard } from './core/guards/admin.guard';
+import {Routes} from '@angular/router';
+import {authGuard} from './core/guards/auth.guard';
+import {adminGuard} from './core/guards/admin.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'devices', pathMatch: 'full' },
+  {path: '', redirectTo: 'devices', pathMatch: 'full'},
 
   // Public
   {
@@ -25,6 +25,14 @@ export const routes: Routes = [
       import('./features/devices/device-list/device-list-component')
         .then(m => m.DeviceListComponent)
   },
+  // Admin only create device
+  {
+    path: 'devices/new',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () =>
+      import('./features/devices/device-form/device-form-component')
+        .then(m => m.DeviceFormComponent)
+  },
   {
     path: 'devices/:id',
     canActivate: [authGuard],
@@ -34,13 +42,6 @@ export const routes: Routes = [
   },
 
   // Admin only
-  {
-    path: 'devices/new',
-    canActivate: [authGuard, adminGuard],
-    loadComponent: () =>
-      import('./features/devices/device-form/device-form-component')
-        .then(m => m.DeviceFormComponent)
-  },
   {
     path: 'devices/:id/edit',
     canActivate: [authGuard, adminGuard],

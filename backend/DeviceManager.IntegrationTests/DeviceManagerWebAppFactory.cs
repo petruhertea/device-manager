@@ -18,6 +18,8 @@ namespace DeviceManager.IntegrationTests;
 public class DeviceManagerWebAppFactory : WebApplicationFactory<Program>
 {
     private readonly Lock _lock = new();
+    // Inside DeviceManagerWebAppFactory.cs
+    private readonly string _dbName = Guid.NewGuid().ToString();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -42,7 +44,7 @@ public class DeviceManagerWebAppFactory : WebApplicationFactory<Program>
                 services.Remove(descriptor);
 
             services.AddDbContext<AppDbContext>(options =>
-                options.UseInMemoryDatabase("TestDb"));
+                options.UseInMemoryDatabase(_dbName));
 
             // ── Replace JWT auth with a no-op scheme that auto-authenticates ──
             // Remove every existing authentication registration so there is no
