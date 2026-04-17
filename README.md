@@ -34,7 +34,7 @@ dotnet run --project DeviceManager.API
 ```
 
 The API will be available at:
-`http://localhost:5000` (or the configured port)
+`http://localhost:8080` (or the configured port)
 
 ---
 
@@ -86,4 +86,5 @@ dotnet test DeviceManager.IntegrationTests
 * If LM Studio is not running, the application will continue to work, but descriptions will not be generated.
 * Ensure ports `1234`, `5000`, and `4200` are available.
 * Ensure device-manager-db-data is created before running Docker Compose
+* When running the LM Studio server with Docker compose app locally, ensure that the url is `http://host.docker.internal:1234` in appsettings.json
 ---
